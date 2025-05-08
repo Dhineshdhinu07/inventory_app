@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Inventory Balance Report{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Inventory Balance Report</h2>
+    
+    <div class="card">
+        <div class="card-body">
+            {% if balance_data %}
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Location</th>
+                                <th>Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in balance_data %}
+                                <tr>
+                                    <td>{{ item.product_name }}</td>
+                                    <td>{{ item.location_name }}</td>
+                                    <td>{{ item.quantity }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info">No inventory balance data available.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
