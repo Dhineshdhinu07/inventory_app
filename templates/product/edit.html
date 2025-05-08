@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Product - Inventory Management{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Edit Product</h1>
+    <a href="{{ url_for('list_products') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back to Products
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="post">
+            {{ form.csrf_token }}
+            <div class="mb-3">
+                {{ form.product_id.label(class="form-label") }}
+                {{ form.product_id(class="form-control", readonly=true) }}
+                <small class="form-text text-muted">Product ID cannot be changed</small>
+            </div>
+            
+            <div class="mb-3">
+                {{ form.product_name.label(class="form-label") }}
+                {{ form.product_name(class="form-control" + (" is-invalid" if form.product_name.errors else "")) }}
+                {% if form.product_name.errors %}
+                    {% for error in form.product_name.errors %}
+                        <div class="invalid-feedback">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            
+            <div class="mb-3">
+                {{ form.description.label(class="form-label") }}
+                {{ form.description(class="form-control", rows=4) }}
+                <small class="form-text text-muted">Optional description of the product</small>
+            </div>
+            
+            <div class="d-grid gap-2">
+                {{ form.submit(class="btn btn-warning btn-lg") }}
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
