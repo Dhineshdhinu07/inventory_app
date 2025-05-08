@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}View Location - Inventory Management{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Location Details</h1>
+    <div>
+        <a href="{{ url_for('list_locations') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Locations
+        </a>
+        <a href="{{ url_for('edit_location', location_id=location.location_id) }}" class="btn btn-warning">
+            <i class="fas fa-edit"></i> Edit Location
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header bg-success text-white">
+        <h5 class="card-title mb-0">{{ location.location_name }}</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <table class="table">
+                    <tr>
+                        <th width="30%">Location ID</th>
+                        <td>{{ location.location_id }}</td>
+                    </tr>
+                    <tr>
+                        <th>Location Name</th>
+                        <td>{{ location.location_name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Description</th>
+                        <td>{{ location.description or 'No description' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Created At</th>
+                        <td>{{ location.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    </tr>
+                    <tr>
+                        <th>Last Updated</th>
+                        <td>{{ location.updated_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Incoming Movements Section -->
+<div class="card mt-4">
+    <div class="card-header bg-primary text-white">
+        <h5 class="card-title mb-0">Incoming Movements</h5>
+    </div>
+    <div class="card-body">
+        {% if location.incoming_movements %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Movement ID</th>
+                        <th>Timestamp</th>
+                        <th>From Location</th>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for movement in location.incoming_movements %}
+                    <tr>
+                        <td>{{ movement.movement_id }}</td>
+                        <td>{{ movement.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                        <td>{{ movement.source.location_name if movement.source else '-' }}</td>
+                        <td>{{ movement.product.product_name }}</td>
+                        <td>{{ movement.qty }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            No incoming movements recorded for this location.
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Outgoing Movements Section -->
+<div class="card mt-4">
+    <div class="card-header bg-danger text-white">
+        <h5 class="card-title mb-0">Outgoing Movements</h5>
+    </div>
+    <div class="card-body">
+        {% if location.outgoing_movements %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Movement ID</th>
+                        <th>Timestamp</th>
+                        <th>To Location</th>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for movement in location.outgoing_movements %}
+                    <tr>
+                        <td>{{ movement.movement_id }}</td>
+                        <td>{{ movement.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                        <td>{{ movement.destination.location_name if movement.destination else '-' }}</td>
+                        <td>{{ movement.product.product_name }}</td>
+                        <td>{{ movement.qty }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            No outgoing movements recorded for this location.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

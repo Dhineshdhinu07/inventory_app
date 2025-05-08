@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Location - Inventory Management{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Edit Location</h1>
+    <a href="{{ url_for('list_locations') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back to Locations
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="post">
+            {{ form.csrf_token }}
+            <div class="mb-3">
+                {{ form.location_id.label(class="form-label") }}
+                {{ form.location_id(class="form-control", readonly=true) }}
+                <small class="form-text text-muted">Location ID cannot be changed</small>
+            </div>
+            
+            <div class="mb-3">
+                {{ form.location_name.label(class="form-label") }}
+                {{ form.location_name(class="form-control" + (" is-invalid" if form.location_name.errors else "")) }}
+                {% if form.location_name.errors %}
+                    {% for error in form.location_name.errors %}
+                        <div class="invalid-feedback">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            
+            <div class="mb-3">
+                {{ form.description.label(class="form-label") }}
+                {{ form.description(class="form-control", rows=4) }}
+                <small class="form-text text-muted">Optional description of the location</small>
+            </div>
+            
+            <div class="d-grid gap-2">
+                {{ form.submit(class="btn btn-warning btn-lg") }}
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
