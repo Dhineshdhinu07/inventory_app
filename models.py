@@ -41,8 +41,8 @@ class ProductMovement(db.Model):
     
     # Define relationships
     product = db.relationship('Product', backref=db.backref('movements', lazy=True))
-    source = db.relationship('Location', foreign_keys=[from_location], backref=db.backref('outgoing_movements', lazy=True))
-    destination = db.relationship('Location', foreign_keys=[to_location], backref=db.backref('incoming_movements', lazy=True))
+    from_location_rel = db.relationship('Location', foreign_keys=[from_location], backref=db.backref('outgoing_movements', lazy=True))
+    to_location_rel = db.relationship('Location', foreign_keys=[to_location], backref=db.backref('incoming_movements', lazy=True))
     
     def __repr__(self):
         return f'<ProductMovement {self.movement_id}>'

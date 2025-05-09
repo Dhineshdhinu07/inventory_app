@@ -14,15 +14,15 @@
                 </tr>
                 <tr>
                     <th>Product</th>
-                    <td>{{ movement.product.name }}</td>
+                    <td>{{ movement.product.product_name }}</td>
                 </tr>
                 <tr>
                     <th>From Location</th>
-                    <td>{{ movement.from_location.name if movement.from_location else 'N/A' }}</td>
+                    <td>{{ movement.from_location_rel.location_name if movement.from_location_rel else 'N/A' }}</td>
                 </tr>
                 <tr>
                     <th>To Location</th>
-                    <td>{{ movement.to_location.name if movement.to_location else 'N/A' }}</td>
+                    <td>{{ movement.to_location_rel.location_name if movement.to_location_rel else 'N/A' }}</td>
                 </tr>
                 <tr>
                     <th>Quantity</th>
@@ -34,8 +34,8 @@
                 </tr>
             </table>
             <div class="mt-3">
-                <a href="{{ url_for('movement_edit', movement_id=movement.movement_id) }}" class="btn btn-primary">Edit</a>
-                <a href="{{ url_for('movement_list') }}" class="btn btn-secondary">Back to List</a>
+                <a href="{{ url_for('edit_movement', movement_id=movement.movement_id) }}" class="btn btn-primary">Edit</a>
+                <a href="{{ url_for('list_movements') }}" class="btn btn-secondary">Back to List</a>
             </div>
         </div>
     </div>

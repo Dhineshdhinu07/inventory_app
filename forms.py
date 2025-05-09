@@ -38,4 +38,12 @@ class ProductMovementForm(FlaskForm):
             self.to_location.errors.append('Source and destination cannot be the same')
             return False
             
+        # If moving from a location, ensure there's enough stock
+        if self.from_location.data:
+            from app import get_product_balance
+            balance = get_product_balance(self.product_id.data, self.from_location.data)
+            if balance < self.qty.data:
+                self.qty.errors.append(f'Not enough stock! Available: {balance}, Requested: {self.qty.data}')
+                return False
+            
         return True

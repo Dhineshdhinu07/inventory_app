@@ -5,13 +5,65 @@
 {% block content %}
 <div class="container mt-4">
     <h2>Add Product Movement</h2>
+    
+    <!-- Stock Information Card -->
+    <div class="card mb-4">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0">Current Stock Levels</h5>
+        </div>
+        <div class="card-body">
+            <div id="stockInfo">
+                {% if stock_levels %}
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Location</th>
+                                    <th>Available Stock</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product_id, locations in stock_levels.items() %}
+                                    {% for location_id, quantity in locations.items() %}
+                                        <tr class="product-stock" data-product="{{ product_id }}">
+                                            <td>{{ product_id }}</td>
+                                            <td>{{ location_id }}</td>
+                                            <td class="{% if quantity < 0 %}text-danger{% else %}text-success{% endif %}">
+                                                {{ quantity }} units
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">No stock information available.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Movement Form Card -->
     <div class="card">
         <div class="card-body">
             <form method="POST">
                 {{ form.hidden_tag() }}
                 <div class="form-group mb-3">
+                    <label>{{ form.movement_id.label }}</label>
+                    {{ form.movement_id(class="form-control") }}
+                    {% if form.movement_id.errors %}
+                        <div class="text-danger">
+                            {% for error in form.movement_id.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="form-group mb-3">
                     <label>{{ form.product_id.label }}</label>
-                    {{ form.product_id(class="form-control") }}
+                    {{ form.product_id(class="form-control", onchange="updateStockDisplay(this.value)") }}
                     {% if form.product_id.errors %}
                         <div class="text-danger">
                             {% for error in form.product_id.errors %}
@@ -30,6 +82,7 @@
                             {% endfor %}
                         </div>
                     {% endif %}
+                    <div id="fromLocationStock" class="text-info mt-1"></div>
                 </div>
                 <div class="form-group mb-3">
                     <label>{{ form.to_location.label }}</label>
@@ -55,10 +108,33 @@
                 </div>
                 <div class="form-group mb-3">
                     <button type="submit" class="btn btn-primary">Submit</button>
-                    <a href="{{ url_for('movement_list') }}" class="btn btn-secondary">Cancel</a>
+                    <a href="{{ url_for('list_movements') }}" class="btn btn-secondary">Cancel</a>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+<script>
+function updateStockDisplay(productId) {
+    // Hide all product stock information
+    document.querySelectorAll('.product-stock').forEach(tr => {
+        tr.style.display = 'none';
+    });
+    
+    // Show only the selected product's stock information
+    const selectedProductRows = document.querySelectorAll(`.product-stock[data-product="${productId}"]`);
+    selectedProductRows.forEach(tr => {
+        tr.style.display = '';
+    });
+}
+
+// Initialize with the first product selected
+document.addEventListener('DOMContentLoaded', function() {
+    const productSelect = document.getElementById('product_id');
+    if (productSelect && productSelect.value) {
+        updateStockDisplay(productSelect.value);
+    }
+});
+</script>
 {% endblock %}

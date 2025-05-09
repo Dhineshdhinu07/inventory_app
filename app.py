@@ -12,6 +12,11 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
 
+# Add context processor for current datetime
+@app.context_processor
+def inject_now():
+    return {'now': datetime.utcnow()}
+
 # Create database tables if they don't exist
 @app.before_first_request
 def create_tables():
@@ -169,12 +174,37 @@ def add_movement():
     form.from_location.choices = [('', 'Select Location')] + [(l.location_id, f"{l.location_id} - {l.location_name}") for l in locations]
     form.to_location.choices = [('', 'Select Location')] + [(l.location_id, f"{l.location_id} - {l.location_name}") for l in locations]
     
+    # Get current stock levels for all products at all locations
+    stock_levels = {}
+    for product in products:
+        stock_levels[product.product_id] = {}
+        for location in locations:
+            # Calculate incoming quantity
+            incoming = db.session.query(func.sum(ProductMovement.qty))\
+                .filter(ProductMovement.to_location == location.location_id, 
+                       ProductMovement.product_id == product.product_id)\
+                .scalar() or 0
+            
+            # Calculate outgoing quantity
+            outgoing = db.session.query(func.sum(ProductMovement.qty))\
+                .filter(ProductMovement.from_location == location.location_id, 
+                       ProductMovement.product_id == product.product_id)\
+                .scalar() or 0
+            
+            # Calculate balance
+            balance = incoming - outgoing
+            if balance != 0:  # Include all balances, even negative ones
+                stock_levels[product.product_id][location.location_id] = balance
+    
+    # Debug print
+    print("Stock Levels:", stock_levels)
+    
     if form.validate_on_submit():
         # Check if movement_id already exists
         existing_movement = ProductMovement.query.filter_by(movement_id=form.movement_id.data).first()
         if existing_movement:
             flash(f'Movement ID {form.movement_id.data} already exists!', 'danger')
-            return render_template('movement/add.html', form=form)
+            return render_template('movement/add.html', form=form, stock_levels=stock_levels)
         
         # Validate additional constraints
         product_id = form.product_id.data
@@ -182,12 +212,12 @@ def add_movement():
         to_location = form.to_location.data or None
         qty = form.qty.data
         
-        # If moving from a location, check if there's enough quantity
+        # Only check stock if we're moving from a location
         if from_location:
             balance = get_product_balance(product_id, from_location)
             if balance < qty:
                 flash(f'Not enough stock! Available: {balance}, Requested: {qty}', 'danger')
-                return render_template('movement/add.html', form=form)
+                return render_template('movement/add.html', form=form, stock_levels=stock_levels)
         
         movement = ProductMovement(
             movement_id=form.movement_id.data,
@@ -202,7 +232,7 @@ def add_movement():
         flash('Product movement added successfully!', 'success')
         return redirect(url_for('list_movements'))
     
-    return render_template('movement/add.html', form=form)
+    return render_template('movement/add.html', form=form, stock_levels=stock_levels)
 
 @app.route('/movements/edit/<string:movement_id>', methods=['GET', 'POST'])
 def edit_movement(movement_id):
