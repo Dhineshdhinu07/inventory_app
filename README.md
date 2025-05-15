@@ -77,3 +77,7 @@ This is a web-based Inventory Management System built with Flask. It allows user
 - To use a different database, update the `SQLALCHEMY_DATABASE_URI` in `app.py`.
 - Static assets can be customized in `static/css/style.css` and `static/js/script.js`.
 
+## Application Screenshots
+-You can see it in screenshots folder
+---
+
